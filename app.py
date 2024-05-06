@@ -3,6 +3,7 @@ import time
 from flask import Flask, render_template, request
 from model import predict_video  # Import function to detect deep fake
 import os
+from upload_video import upload_video_to_storage
 
 app = Flask(__name__)
 
@@ -14,18 +15,31 @@ def index():
 def home():
     return render_template('home.html')
 
-@app.route('/detect', methods=['POST'])
+@app.route('/detect', methods=['GET','POST'])
 def detect():
     if request.method == 'POST':
+        # Check if the POST request has the file part
+        if 'video' not in request.files:
+            return render_template('index.html', error='No file uploaded')
+        
         video_file = request.files['video']
+
+        # If the user does not select a file, the browser may send an empty file without a filename
+        if video_file.filename == '':
+            return render_template('index.html', error='No selected file')
+
         if video_file:
-            # Call deep fake detection function from model.py
-            # result = detect_deep_fake(video_file)
-            video_path = os.path.join(app.config['UPLOAD_FOLDER'], video_file.filename)
-            video_file.save(video_path)
-            result = predict_video(video_path)
+
+            # Save the uploaded video to Firebase Storage and get the download URL
+            download_url = upload_video_to_storage(video_file,destination_blob_name="video/"+video_file.filename)
+
+            # Call deep fake detection function
+            result = predict_video(download_url)
+
             return render_template('index.html', result=result)
-    return render_template('index.html', error='No file uploaded')
+        
+
+    return render_template('index.html')
 
 @app.route('/result', methods=['GET', 'POST'])
 def upload_video():
