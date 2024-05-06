@@ -31,7 +31,7 @@ def detect():
         if video_file:
 
             # Save the uploaded video to Firebase Storage and get the download URL
-            download_url = upload_video_to_storage(video_file,destination_blob_name="video/"+video_file.filename)
+            download_url = upload_video_to_storage(video_file,destination_blob_name="videos/"+video_file.filename)
 
             # Call deep fake detection function
             result = predict_video(download_url)
