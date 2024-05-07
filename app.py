@@ -5,6 +5,8 @@ from model import predict_video  # Import function to detect deep fake
 import os
 from upload_video import upload_video_to_storage
 
+port=os.environ.get('PORT', 5005)
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -79,5 +81,5 @@ def calculate_results(filename):
 
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = 'static'
-    app.run(debug=True)
+    app.run(debug=True,port=port)
     
